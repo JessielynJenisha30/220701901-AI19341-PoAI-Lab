@@ -1,0 +1,71 @@
+class WaterJugProblem:
+    def __init__(self, jug1_capacity, jug2_capacity, target_amount):
+        self.jug1_capacity = jug1_capacity
+        self.jug2_capacity = jug2_capacity
+        self.target_amount = target_amount
+        self.visited = set()
+
+    def is_solution(self, state):
+        jug1, jug2 = state
+        return jug1 == self.target_amount or jug2 == self.target_amount
+
+    def get_possible_moves(self, state):
+        jug1, jug2 = state
+        moves = []
+
+        # Fill jug1
+        moves.append((self.jug1_capacity, jug2))
+        # Fill jug2
+        moves.append((jug1, self.jug2_capacity))
+        # Empty jug1
+        moves.append((0, jug2))
+        # Empty jug2
+        moves.append((jug1, 0))
+        # Pour jug1 into jug2
+        pour_into_jug2 = min(jug1, self.jug2_capacity - jug2)
+        moves.append((jug1 - pour_into_jug2, jug2 + pour_into_jug2))
+        # Pour jug2 into jug1
+        pour_into_jug1 = min(jug2, self.jug1_capacity - jug1)
+        moves.append((jug1 + pour_into_jug1, jug2 - pour_into_jug1))
+
+        return moves
+
+    def dfs(self, state):
+        stack = [(state, [])]
+        self.visited.add(state)
+
+        while stack:
+            current_state, path = stack.pop()
+            jug1, jug2 = current_state
+
+            if self.is_solution(current_state):
+                return path + [current_state]
+
+            for move in self.get_possible_moves(current_state):
+                if move not in self.visited:
+                    self.visited.add(move)
+                    stack.append((move, path + [current_state]))
+
+        return None
+
+    def solve(self):
+        initial_state = (0, 0)
+        return self.dfs(initial_state)
+
+
+# Example usage:
+if __name__ == "__main__":
+    '''jug1_capacity = int(input("Enter the capacity of Jug 1: "))
+    jug2_capacity = int(input("Enter the capacity of Jug 2: "))
+    target_amount = int(input("Enter the target amount: "))
+
+    problem = WaterJugProblem(jug1_capacity, jug2_capacity, target_amount)'''
+    problem = WaterJugProblem(4, 3, 2)
+    solution = problem.solve()
+
+    if solution:
+        print("Solution path:")
+        for state in solution:
+            print(f"Jug 1: {state[0]} gallons, Jug 2: {state[1]} gallons")
+    else:
+        print("No solution found.")
